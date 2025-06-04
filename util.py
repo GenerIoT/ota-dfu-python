@@ -19,21 +19,12 @@ def zero_pad_array_le(data, padsize):
     for i in range(0, padsize):
         data.insert(0, 0)
 
-def array_to_hex_string(arr):
-    hex_str = ""
-    for val in arr:
-        if val > 255:
-            raise Exception("Value is greater than it is possible to represent with one byte")
-        hex_str += "%02x" % val
-
-    return hex_str
-
 def crc32_unsigned(bytestring):
     return binascii.crc32(bytestring) % (1 << 32)
 
 def mac_string_to_uint(mac):
     parts = list(re.match('(..):(..):(..):(..):(..):(..)', mac).groups())
-    ints = map(lambda x: int(x, 16), parts)
+    ints = list(map(lambda x: int(x, 16), parts))
 
     res = 0
     for i in range(0, len(ints)):
@@ -48,7 +39,7 @@ def uint_to_mac_string(mac):
 
     return ':'.join(map(lambda x: '{:02x}'.format(x).upper(), ints))
 
-# Print a nice console progress bar
+# print(a nice console progress bar)
 def print_progress(iteration, total, prefix = '', suffix = '', decimals = 1, barLength = 100):
     """
     Call in a loop to create terminal progress bar

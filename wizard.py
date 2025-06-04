@@ -108,10 +108,10 @@ class Application(Frame):
         self.addr = widget.get(selected[0])
 
         if self.addr and self.file:
-            print "addr: {0}".format(self.addr)
-            print "file: {0}".format(self.file)
+            print(f"addr: {self.addr}")
+            print(f"file: {self.file}")
 
-            # dfu_server("-z {0} -a {1}".format(self.file, self.addr))
+            # dfu_server(f"-z {self.file} -a {self.addr}")
 
         else:
             tkMessageBox.showwarning("Error", "Missing application file")

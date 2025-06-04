@@ -28,12 +28,12 @@ class HciTool:
             self.hcitool.terminate(force=True)
             return []
         except Exception as err:
-            print "scan: exception: {0}".format(sys.exc_info()[0])
+            print(f"scan: exception: {sys.exc_info()[0]}")
             self.hcitool.terminate(force=True)
             return []
 
         if index != 0:
-            print "scan: failed"
+            print("scan: failed")
             self.hcitool.terminate(force=True)
             return []
 
@@ -86,12 +86,12 @@ class Scan:
 
         except KeyboardInterrupt:
             # On Cntl-C
-            pass;
+            pass
         except pexpect.TIMEOUT:
-            print "scan: pexpect.TIMEOUT"
+            print("scan: pexpect.TIMEOUT")
             pass
         except Exception as e:
-            print "scan: exception: {0} ".format(sys.exc_info()[0])
+            print(f"scan: exception: {sys.exc_info()[0]}")
             pass
 
 
@@ -110,4 +110,4 @@ if __name__ == '__main__':
 
     scanner.scan()
 
-    print "scan complete"
+    print("scan complete")

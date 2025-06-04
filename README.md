@@ -1,10 +1,6 @@
 # Python nRF5 OTA DFU Controller
 
-This is my fork of astronomer80's fork of foldedtoad's Python OTA DFU utility. 
-I've made some substantial changes to the code from the original repo, mainly:
-
-* Improved code structure and readability
-* Add support for the new secure bootloader from NRF SDK 12
+This is a fork of dinger's fork of astronomer80's fork of foldedtoad's Python OTA DFU utility ported to python3
 
 ## What does it do?
 

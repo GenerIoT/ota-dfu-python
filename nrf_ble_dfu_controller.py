@@ -61,7 +61,7 @@ class NrfBleDfuController(object):
         self.firmware_path = firmware_path
         self.datfile_path = datfile_path
 
-        self.ble_conn = pexpect.spawn("gatttool -b '%s' -t random --interactive" % target_mac)
+        self.ble_conn = pexpect.spawn(f"gatttool -b '{target_mac}' -t random --interactive")
         self.ble_conn.delaybeforesend = 0
 
     # --------------------------------------------------------------------------
@@ -72,8 +72,8 @@ class NrfBleDfuController(object):
         (_, self.data_handle, _) = self._get_handles(self.UUID_PACKET)
 
         if verbose:
-            print 'Control Point Handle: 0x%04x, CCCD: 0x%04x' % (self.ctrlpt_handle, self.ctrlpt_cccd_handle)
-            print 'Packet handle: 0x%04x' % (self.data_handle)
+            print(f'Control Point Handle: 0x{self.ctrlpt_handle:04x}, CCCD: 0x{self.ctrlpt_cccd_handle:04x}')
+            print(f'Packet handle: 0x{self.data_handle:04x}')
 
         # Subscribe to notifications from Control Point characteristic
         self._enable_notifications(self.ctrlpt_cccd_handle)
@@ -92,7 +92,7 @@ class NrfBleDfuController(object):
     #    Bin: read binfile into bin_array
     # --------------------------------------------------------------------------
     def input_setup(self):
-        print "Sending file " + os.path.split(self.firmware_path)[1] + " to " + self.target_mac
+        print(f"Sending file {os.path.split(self.firmware_path)[1]} to {self.target_mac}")
 
         if self.firmware_path == None:
             raise Exception("input invalid")
@@ -103,8 +103,8 @@ class NrfBleDfuController(object):
             self.bin_array = array('B', open(self.firmware_path, 'rb').read())
 
             self.image_size = len(self.bin_array)
-            print "Binary imge size: %d" % self.image_size
-            print "Binary CRC32: %d" % crc32_unsigned(array_to_hex_string(self.bin_array))
+            print(f"Binary imge size: {self.image_size}")
+            print(f"Binary CRC32: {crc32_unsigned(bytes(self.bin_array))}")
 
             return
 
@@ -112,7 +112,7 @@ class NrfBleDfuController(object):
             intelhex = IntelHex(self.firmware_path)
             self.bin_array = intelhex.tobinarray()
             self.image_size = len(self.bin_array)
-            print "bin array size: ", self.image_size
+            print(f"bin array size: {self.image_size}")
             return
 
         raise Exception("input invalid")
@@ -122,20 +122,20 @@ class NrfBleDfuController(object):
     # Will return True if a connection was established, False otherwise
     # --------------------------------------------------------------------------
     def scan_and_connect(self, timeout=2):
-        if verbose: print "scan_and_connect"
+        if verbose: print("scan_and_connect")
 
-        print "Connecting to %s" % (self.target_mac)
+        print(f"Connecting to {self.target_mac}")
 
         try:
             self.ble_conn.expect('\[LE\]>', timeout=timeout)
-        except pexpect.TIMEOUT, e:
+        except pexpect.TIMEOUT as e:
             return False
 
         self.ble_conn.sendline('connect')
 
         try:
             res = self.ble_conn.expect('.*Connection successful.*', timeout=timeout)
-        except pexpect.TIMEOUT, e:
+        except pexpect.TIMEOUT as e:
             return False
 
         return True
@@ -152,7 +152,7 @@ class NrfBleDfuController(object):
 
         # Re-start gatttool with the new address
         self.disconnect()
-        self.ble_conn = pexpect.spawn("gatttool -b '%s' -t random --interactive" % self.target_mac)
+        self.ble_conn = pexpect.spawn(f"gatttool -b '{self.target_mac}' -t random --interactive")
         self.ble_conn.delaybeforesend = 0
 
     # --------------------------------------------------------------------------
@@ -166,10 +166,10 @@ class NrfBleDfuController(object):
 
         try:
             self.ble_conn.expect([uuid], timeout=2)
-            handles = re.findall('.*handle: (0x....),.*char value handle: (0x....)', self.ble_conn.before)
+            handles = re.findall(b'.*handle: (0x....),.*char value handle: (0x....)', self.ble_conn.before)
             (handle, value_handle) = handles[-1]
-        except pexpect.TIMEOUT, e:
-            raise Exception("UUID not found: {}".format(uuid))
+        except pexpect.TIMEOUT as e:
+            raise Exception(f"UUID not found: {uuid}")
 
         return (int(handle, 16), int(value_handle, 16), int(value_handle, 16)+1)
 
@@ -179,10 +179,10 @@ class NrfBleDfuController(object):
     # --------------------------------------------------------------------------
     def _dfu_wait_for_notify(self):
         while True:
-            if verbose: print "dfu_wait_for_notify"
+            if verbose: print("dfu_wait_for_notify")
 
             if not self.ble_conn.isalive():
-                print "connection not alive"
+                print("connection not alive")
                 return None
 
             try:
@@ -202,48 +202,45 @@ class NrfBleDfuController(object):
                 self.ble_conn.sendline('')
                 string = self.ble_conn.before
                 if '[   ]' in string:
-                    print 'Connection lost! '
+                    print('Connection lost!')
                     raise Exception('Connection Lost')
                 return None
 
             if index == 0:
                 after = self.ble_conn.after
                 hxstr = after.split()[3:]
-                handle = long(float.fromhex(hxstr[0]))
+                handle = int(hxstr[0], 16)
                 return hxstr[2:]
 
             else:
-                print "unexpeced index: {0}".format(index)
+                print(f"unexpeced index: {index}")
                 return None
 
     # --------------------------------------------------------------------------
     #  Send a procedure + any parameters required
     # --------------------------------------------------------------------------
     def _dfu_send_command(self, procedure, params=[]):
-        if verbose: print '_dfu_send_command'
+        if verbose: print('$1')
 
-        cmd  = 'char-write-req 0x%04x %02x' % (self.ctrlpt_handle, procedure)
-        cmd += array_to_hex_string(params)
+        cmd = f'char-write-req 0x{self.ctrlpt_handle:04x} {procedure:02x}{bytes(params).hex()}'
 
-        if verbose: print cmd
+        if verbose: print(cmd)
 
         self.ble_conn.sendline(cmd)
 
         # Verify that command was successfully written
         try:
             res = self.ble_conn.expect('Characteristic value was written successfully.*', timeout=10)
-        except pexpect.TIMEOUT, e:
-            print "State timeout"
+        except pexpect.TIMEOUT as e:
+            print("State timeout")
 
     # --------------------------------------------------------------------------
     #  Send an array of bytes
     # --------------------------------------------------------------------------
     def _dfu_send_data(self, data):
-        cmd  = 'char-write-cmd 0x%04x' % (self.data_handle)
-        cmd += ' '
-        cmd += array_to_hex_string(data)
+        cmd = f'char-write-cmd 0x{self.data_handle:04x} {bytes(data).hex()}'
 
-        if verbose: print cmd
+        if verbose: print(cmd)
 
         self.ble_conn.sendline(cmd)
 
@@ -251,16 +248,16 @@ class NrfBleDfuController(object):
     #  Enable notifications from the Control Point Handle
     # --------------------------------------------------------------------------
     def _enable_notifications(self, cccd_handle):
-        if verbose: print '_enable_notifications'
+        if verbose: print('_enable_notifications')
 
-        cmd  = 'char-write-req 0x%04x %s' % (cccd_handle, '0100')
+        cmd  = f'char-write-req 0x{cccd_handle:04x} 0100'
 
-        if verbose: print cmd
+        if verbose: print(cmd)
 
         self.ble_conn.sendline(cmd)
 
         # Verify that command was successfully written
         try:
             res = self.ble_conn.expect('Characteristic value was written successfully.*', timeout=10)
-        except pexpect.TIMEOUT, e:
-            print "State timeout"
+        except pexpect.TIMEOUT as e:
+            print("State timeout")
