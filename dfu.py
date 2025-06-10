@@ -144,9 +144,8 @@ def main():
         if ble_dfu.scan_and_connect():
             if not ble_dfu.check_DFU_mode():
                 print("Need to switch to DFU mode")
-                success = ble_dfu.switch_to_dfu_mode()
-                if not success:
-                    print("Couldn't reconnect")
+                if not ble_dfu.switch_to_dfu_mode():
+                    raise Exception("Failed to switch to DFU mode")
         else:
             # The device might already be in DFU mode (MAC + 1)
             ble_dfu.target_mac_increase(1)
