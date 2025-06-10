@@ -19,6 +19,8 @@ class NrfBleDfuController(object):
     pkt_receipt_interval = 10
     pkt_payload_size     = 20
 
+    timeout = 10
+
     # --------------------------------------------------------------------------
     #  Start the firmware update process
     # --------------------------------------------------------------------------
@@ -121,20 +123,20 @@ class NrfBleDfuController(object):
     # Perform a scan and connect via gatttool.
     # Will return True if a connection was established, False otherwise
     # --------------------------------------------------------------------------
-    def scan_and_connect(self, timeout=2):
+    def scan_and_connect(self):
         if verbose: print("scan_and_connect")
 
         print(f"Connecting to {self.target_mac}")
 
         try:
-            self.ble_conn.expect('\[LE\]>', timeout=timeout)
+            self.ble_conn.expect('\[LE\]>', timeout=self.timeout)
         except pexpect.TIMEOUT as e:
             return False
 
         self.ble_conn.sendline('connect')
 
         try:
-            res = self.ble_conn.expect('.*Connection successful.*', timeout=timeout)
+            res = self.ble_conn.expect('.*Connection successful.*', timeout=self.timeout)
         except pexpect.TIMEOUT as e:
             return False
 
@@ -165,7 +167,7 @@ class NrfBleDfuController(object):
         self.ble_conn.sendline('characteristics')
 
         try:
-            self.ble_conn.expect([uuid], timeout=2)
+            self.ble_conn.expect([uuid], timeout=self.timeout)
             handles = re.findall(b'.*handle: (0x....),.*char value handle: (0x....)', self.ble_conn.before)
             (handle, value_handle) = handles[-1]
         except pexpect.TIMEOUT as e:
@@ -186,7 +188,7 @@ class NrfBleDfuController(object):
                 return None
 
             try:
-                index = self.ble_conn.expect('Notification handle = .*? \r\n', timeout=30)
+                index = self.ble_conn.expect('Notification handle = .*? \r\n', timeout=self.timeout)
 
             except pexpect.TIMEOUT:
                 #
@@ -200,8 +202,7 @@ class NrfBleDfuController(object):
                 # continue to wait.
                 #
                 self.ble_conn.sendline('')
-                string = self.ble_conn.before
-                if '[   ]' in string:
+                if b'[   ]' in self.ble_conn.before:
                     print('Connection lost!')
                     raise Exception('Connection Lost')
                 return None
@@ -230,7 +231,7 @@ class NrfBleDfuController(object):
 
         # Verify that command was successfully written
         try:
-            res = self.ble_conn.expect('Characteristic value was written successfully.*', timeout=10)
+            res = self.ble_conn.expect('Characteristic value was written successfully.*', timeout=self.timeout)
         except pexpect.TIMEOUT as e:
             print("State timeout")
 
@@ -258,6 +259,6 @@ class NrfBleDfuController(object):
 
         # Verify that command was successfully written
         try:
-            res = self.ble_conn.expect('Characteristic value was written successfully.*', timeout=10)
+            res = self.ble_conn.expect('Characteristic value was written successfully.*', timeout=self.timeout)
         except pexpect.TIMEOUT as e:
             print("State timeout")

@@ -195,8 +195,8 @@ class BleDfuControllerLegacy(NrfBleDfuController):
 
         # Skip two rows
         try:
-            res = self.ble_conn.expect('handle:.*', timeout=10)
-            # res = self.ble_conn.expect('handle:', timeout=10)
+            res = self.ble_conn.expect('handle:.*', timeout=self.timeout)
+            # res = self.ble_conn.expect('handle:', timeout=self.timeout)
         except pexpect.TIMEOUT as e:
             print("State timeout")
         except:

@@ -111,7 +111,7 @@ class BleDfuControllerSecure(NrfBleDfuController):
         dfu_mode = False
 
         try:
-            self.ble_conn.expect([self.UUID_BUTTONLESS], timeout=2)
+            self.ble_conn.expect([self.UUID_BUTTONLESS], timeout=self.timeout)
         except pexpect.TIMEOUT as e:
             dfu_mode = True
 
