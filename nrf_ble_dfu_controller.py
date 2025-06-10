@@ -129,14 +129,39 @@ class NrfBleDfuController(object):
         print(f"Connecting to {self.target_mac}")
 
         try:
-            self.ble_conn.expect('\[LE\]>', timeout=self.timeout)
+            self.ble_conn.expect('\[LE\]>.*', timeout=self.timeout)
         except pexpect.TIMEOUT as e:
             return False
 
         self.ble_conn.sendline('connect')
 
         try:
-            res = self.ble_conn.expect('.*Connection successful.*', timeout=self.timeout)
+            res = self.ble_conn.expect('Connection successful.*', timeout=self.timeout)
+        except pexpect.TIMEOUT as e:
+            return False
+
+        return True
+
+    # --------------------------------------------------------------------------
+    # Perform a reconnection via gatttool.
+    # Will return True if a connection was established, False otherwise
+    # --------------------------------------------------------------------------
+    def reconnect(self):
+        if verbose: print("reconnect")
+
+        print(f"Reconnecting to {self.target_mac}")
+
+        self.ble_conn.sendline('')
+
+        try:
+            self.ble_conn.expect('\[LE\]>.*', timeout=self.timeout)
+        except pexpect.TIMEOUT as e:
+            return False
+
+        self.ble_conn.sendline('connect')
+
+        try:
+            self.ble_conn.expect('Connection successful.*', timeout=self.timeout)
         except pexpect.TIMEOUT as e:
             return False
 
@@ -252,6 +277,24 @@ class NrfBleDfuController(object):
         if verbose: print('_enable_notifications')
 
         cmd  = f'char-write-req 0x{cccd_handle:04x} 0100'
+
+        if verbose: print(cmd)
+
+        self.ble_conn.sendline(cmd)
+
+        # Verify that command was successfully written
+        try:
+            res = self.ble_conn.expect('Characteristic value was written successfully.*', timeout=self.timeout)
+        except pexpect.TIMEOUT as e:
+            print("State timeout")
+
+    # --------------------------------------------------------------------------
+    #  Enable indications from the Control Point Handle
+    # --------------------------------------------------------------------------
+    def _enable_indications(self, cccd_handle):
+        if verbose: print('_enable_indications')
+
+        cmd  = f'char-write-req 0x{cccd_handle:04x} 0200'
 
         if verbose: print(cmd)
 
