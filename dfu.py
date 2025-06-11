@@ -16,6 +16,7 @@ from unpacker import Unpacker
 
 from ble_secure_dfu_controller import BleDfuControllerSecure
 from ble_legacy_dfu_controller import BleDfuControllerLegacy
+from ble_ruuvitag_dfu_controller import BleDfuControllerRuuvitag
 
 def main():
 
@@ -64,6 +65,13 @@ def main():
                   type="string",
                   default=None,
                   help='zip file to be used.'
+                  )
+
+        parser.add_option('--ruuvitag',
+                  action='store',
+                  dest='ruuvitag',
+                  default=None,
+                  help='ruuvitag device ID'
                   )
 
         parser.add_option('--secure',
@@ -132,7 +140,9 @@ def main():
 
         ''' Start of Device Firmware Update processing '''
 
-        if options.secure_dfu:
+        if options.ruuvitag is not None:
+            ble_dfu = BleDfuControllerRuuvitag(options.address.upper(), hexfile, datfile, options.ruuvitag)
+        elif options.secure_dfu:
             ble_dfu = BleDfuControllerSecure(options.address.upper(), hexfile, datfile)
         else:
             ble_dfu = BleDfuControllerLegacy(options.address.upper(), hexfile, datfile)
