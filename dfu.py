@@ -100,7 +100,7 @@ def main():
 
         if not options.address:
             parser.print_help()
-            exit(2)
+            sys.exit(2)
 
         unpacker = None
         hexfile  = None
@@ -110,29 +110,28 @@ def main():
 
             if (options.hexfile != None) or (options.datfile != None):
                 print("Conflicting input directives")
-                exit(2)
+                sys.exit(2)
 
-            unpacker = Unpacker()
-            #print(options.zipfile)
             try:
+                unpacker = Unpacker()
                 hexfile, datfile = unpacker.unpack_zipfile(options.zipfile)	
             except Exception as e:
-                print("ERR")
-                print(e)
+                print(f"Failed to unpack zip: {e}")
+                sys.exit(2)
                 pass
 
         else:
             if (not options.hexfile) or (not options.datfile):
                 parser.print_help()
-                exit(2)
+                sys.exit(2)
 
             if not os.path.isfile(options.hexfile):
                 print("Error: Hex file doesn't exist")
-                exit(2)
+                sys.exit(2)
 
             if not os.path.isfile(options.datfile):
                 print("Error: DAT file doesn't exist")
-                exit(2)
+                sys.exit(2)
 
             hexfile = options.hexfile
             datfile = options.datfile
@@ -173,9 +172,7 @@ def main():
     except Exception as e:
         # print(traceback.format_exc())
         print(f"Exception at line {sys.exc_info()[2].tb_lineno}: {e}")
-
-    except:
-        pass
+        sys.exit(2)
 
     # If Unpacker for zipfile used then delete Unpacker
     if unpacker != None:
