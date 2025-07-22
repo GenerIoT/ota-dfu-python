@@ -15,9 +15,10 @@ class BleDfuControllerRuuvitag(BleDfuControllerSecure):
     def __init__(self, target_mac, firmware_path, datfile_path, device_id):
         super().__init__(target_mac, firmware_path, datfile_path)
 
-        if len(device_id) != 16 or not all(c in string.hexdigits for c in device_id):
-            raise ValueError('Ruuvitag device id is not 16 long hexadecimal')
-        self.device_id = device_id
+        id_bytes = device_id.split(':')
+        if len(id_bytes) != 8:
+            raise ValueError('Ruuvitag device id is not in the format xx:xx:xx:xx:xx:xx:xx:xx')
+        self.device_id = ''.join(id_bytes)
 
     # --------------------------------------------------------------------------
     #  Check if the peripheral is running in bootloader (DFU) or application mode
