@@ -22,7 +22,7 @@ fi
 # Check if one argument are passed
 if [ "$#" -ne 1 ]; then
   echo "Error: Invalid number of arguments"
-  show_helpW
+  show_help
   exit 1
 fi
 
@@ -30,7 +30,7 @@ cd /var/lib/ota-dfu-python
 
 URL="$1"
 MAC="$(cat /usr/share/mender/identity/mac)"
-ID="$(cat /usr/share/mender/identity/ruuvitag_id)"
+ID="$(cat /usr/share/mender/identity/ruuvi-id)"
 
 # Get current timestamp in milliseconds
 DATE=$(date +%s%3N)
