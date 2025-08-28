@@ -40,37 +40,8 @@ FIRMWARE_FILE="ruuvitag_firmware_${DATE}.zip"
 
 wget "$URL" -O "$FIRMWARE_FILE"
 
-MAX_ATTEMPTS=5
-ATTEMPT=1
-
-# Backoff times in seconds: [0, 600, 3600, 10800, 43200]
-# Corresponds to: [immediate, 10min, 1h, 3h, 12h]
-BACKOFF_TIMES=(0 600 3600 10800 43200)
-
-while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-    echo "Attempt $ATTEMPT: Running dfu.py..."
-
-    python3 dfu.py --address="$MAC" --zip="$FIRMWARE_FILE" --ruuvitag="$ID"
-    return_code=$?
-
-    if [ $return_code -eq 0 ]; then
-        echo "Success on attempt $ATTEMPT"
-        break
-    else
-        echo "Attempt $ATTEMPT failed with return code $return_code"
-    fi
-
-    if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
-        sleep_time=${BACKOFF_TIMES[$ATTEMPT]}
-        echo "Waiting $sleep_time seconds before next attempt..."
-        sleep $sleep_time
-    else
-        echo "Max attempts reached. Exiting with failure."
-        exit 1
-    fi
-
-    ATTEMPT=$((ATTEMPT + 1))
-done
+python3 dfu.py --address="$MAC" --zip="$FIRMWARE_FILE" --ruuvitag="$ID"
+return_code=$?
 
 rm -f "$FIRMWARE_FILE"
 
