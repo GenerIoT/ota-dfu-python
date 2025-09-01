@@ -40,7 +40,7 @@ FIRMWARE_FILE="ruuvitag_firmware_${DATE}.zip"
 
 wget "$URL" -O "$FIRMWARE_FILE"
 
-python3 dfu.py --address="$MAC" --zip="$FIRMWARE_FILE" --ruuvitag="$ID"
+python3 /usr/ota-dfu-python/dfu.py --address="$MAC" --zip="$FIRMWARE_FILE" --ruuvitag="$ID"
 return_code=$?
 
 rm -f "$FIRMWARE_FILE"
