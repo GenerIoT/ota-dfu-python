@@ -153,12 +153,11 @@ def main():
 
         # Connect to peer device. Assume application mode.
         for i in range(10):
-            if i > 1:
-                ble_dfu.target_mac_increase(-1)
+            print(f"Trying {i+1}/10")
+            if i >= 1:
+                os.system("bluetoothctl power off")
                 time.sleep(10)
-                os.command("bluetoothctl power off")
-                time.sleep(10)
-                os.command("bluetoothctl power on")
+                os.system("bluetoothctl power on")
                 time.sleep(10)
 
             if ble_dfu.scan_and_connect():
@@ -167,9 +166,9 @@ def main():
                     if not ble_dfu.switch_to_dfu_mode():
                         errc += 1
                         print(f"Try {i+1}/10: Failed to switch to DFU mode")
-                    else: 
+                    else:
                         break
-                else: 
+                else:
                     break
 
             else:
@@ -183,10 +182,13 @@ def main():
                 if not ble_dfu.scan_and_connect():
                     errc += 1
                     print(f"Try {i+1}/10: Can't connect to DFU MAC")
-                else: 
+                else:
                     break
 
-        if errc == 10: 
+                # Reset mac for a new try
+                ble_dfu.target_mac_increase(-1)
+
+        if errc == 10:
             raise Exception("Error limit reached. Can't connect to device")
 
         ble_dfu.start()
