@@ -149,20 +149,45 @@ def main():
         # Initialize inputs
         ble_dfu.input_setup()
 
-        # Connect to peer device. Assume application mode.
-        if ble_dfu.scan_and_connect():
-            if not ble_dfu.check_DFU_mode():
-                print("Need to switch to DFU mode")
-                if not ble_dfu.switch_to_dfu_mode():
-                    raise Exception("Failed to switch to DFU mode")
-        else:
-            # The device might already be in DFU mode (MAC + 1)
-            ble_dfu.target_mac_increase(1)
+        errc: int = 0
 
-            # Try connection with new address
-            print("Couldn't connect, will try DFU MAC")
-            if not ble_dfu.scan_and_connect():
-                raise Exception("Can't connect to device")
+        # Connect to peer device. Assume application mode.
+        for i in range(10):
+            if i > 1:
+                ble_dfu.target_mac_increase(-1)
+                time.sleep(10)
+                os.command("bluetoothctl power off")
+                time.sleep(10)
+                os.command("bluetoothctl power on")
+                time.sleep(10)
+
+            if ble_dfu.scan_and_connect():
+                if not ble_dfu.check_DFU_mode():
+                    print("Need to switch to DFU mode")
+                    if not ble_dfu.switch_to_dfu_mode():
+                        errc += 1
+                        print(f"Try {i+1}/10: Failed to switch to DFU mode")
+                    else: 
+                        break
+                else: 
+                    break
+
+            else:
+                print(f"Try {i+1}/10: Can't connect to Normal MAC")
+
+                # The device might already be in DFU mode (MAC + 1)
+                ble_dfu.target_mac_increase(1)
+
+                # Try connection with new address
+                print("Couldn't connect, will try DFU MAC")
+                if not ble_dfu.scan_and_connect():
+                    errc += 1
+                    print(f"Try {i+1}/10: Can't connect to DFU MAC")
+                else: 
+                    break
+
+        if errc == 10: 
+            raise Exception("Error limit reached. Can't connect to device")
 
         ble_dfu.start()
 
