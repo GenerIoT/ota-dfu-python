@@ -14,7 +14,7 @@ cat <<'EOF' > "$UPDATE_SCRIPT"
 # EDIT THIS AS NEEDED
 URL="https://github.com/ruuvi/ruuvi.firmware.c/releases/download/v3.34.1/ruuvitag_b_armgcc_ruuvifw_default_v3.34.1_dfu_app.zip"
 
-/bin/bash /usr/ota-dfu-python/update.sh "$URL"
+/bin/bash /usr/ota-update/ruuvi-update.sh "$URL"
 EOF
 
 # Make the update script executable
