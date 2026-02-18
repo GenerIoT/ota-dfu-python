@@ -2,7 +2,7 @@ import pexpect
 import string
 import time
 
-from ble_secure_dfu_controller import BleDfuControllerSecure
+from ota_package.ble_secure_dfu_controller import BleDfuControllerSecure
 
 class BleDfuControllerRuuvitag(BleDfuControllerSecure):
     # Class constants

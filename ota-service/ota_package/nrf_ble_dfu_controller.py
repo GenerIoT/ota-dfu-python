@@ -4,7 +4,7 @@ import re
 
 from abc   import ABCMeta, abstractmethod
 from array import array
-from util  import *
+from ota_package.util  import *
 
 verbose = False
 
@@ -179,7 +179,7 @@ class NrfBleDfuController(object):
 
         # Re-start gatttool with the new address
         self.disconnect()
-        self.ble_conn = pexpect.spawn(f"gatttool -b '{self.target_mac}' --interactive")
+        self.ble_conn = pexpect.spawn(f"gatttool -b '{self.target_mac}' -t random --interactive")
         self.ble_conn.delaybeforesend = 0
 
     # --------------------------------------------------------------------------

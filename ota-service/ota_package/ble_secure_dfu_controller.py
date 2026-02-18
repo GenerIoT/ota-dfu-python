@@ -3,9 +3,9 @@ import pexpect
 import time
 
 from array import array
-from util  import *
+from ota_package.util  import *
 
-from nrf_ble_dfu_controller import NrfBleDfuController
+from ota_package.nrf_ble_dfu_controller import NrfBleDfuController
 
 verbose = False
 
