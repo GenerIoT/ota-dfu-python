@@ -6,9 +6,8 @@ from ota_package.dfu_service import run_dfu
 # -----------------------------
 # Configuration
 # -----------------------------
-# Replace these with real values
 MAC_ADDRESS = "FD:A0:1D:27:3C:11"
-FIRMWARE_FILE = "ota_package/firmware.zip"  # must exist inside container/host
+FIRMWARE_FILE = "firmware.zip"
 RUUVITAG_ID = "E9:34:DA:74:0D:6C:5B:43"
 
 # -----------------------------

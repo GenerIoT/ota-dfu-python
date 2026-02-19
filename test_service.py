@@ -4,7 +4,7 @@ url = "http://localhost:8000/update"
 
 data = {
     "mac": "FD:A0:1D:27:3C:11",
-    "zipfile": "firmware.zip",
+    "url": "https://github.com/ruuvi/ruuvi.firmware.c/releases/download/v3.34.1/ruuvitag_b_armgcc_ruuvifw_default_v3.34.1_dfu_app.zip",
     "ruuvitag": "E9:34:DA:74:0D:6C:5B:43"
 }
 

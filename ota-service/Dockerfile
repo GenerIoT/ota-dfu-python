@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-COPY firmware.zip ./firmware.zip
+#COPY firmware.zip ./firmware.zip
 
 EXPOSE 8000
 
