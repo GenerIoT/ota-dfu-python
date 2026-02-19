@@ -1,3 +1,8 @@
+# Copyright 2026 Tampere University
+# This software was developed as a part of the GenerIoT project: https://itea4.org/project/generiot.html  
+# This source code is licensed under the MIT license. See LICENSE in the repository root directory.
+# Author(s): Matias Nurmi <matias.nurmi@tuni.fi>
+
 from ota_package.unpacker import Unpacker
 from ota_package.ble_ruuvitag_dfu_controller import BleDfuControllerRuuvitag
 
