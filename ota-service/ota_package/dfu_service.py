@@ -29,12 +29,9 @@ def run_dfu(address, zipfile, ruuvitag):
                         print("Failed to switch to DFU mode")
                         errc += 1
                     else:
-                        print("Connection established")
                         break
                 else:
-                    print("Connection established")
                     break
-
             else:
                 # The device might already be in DFU mode (MAC + 1)
                 ble_dfu.target_mac_increase(1)
@@ -43,15 +40,13 @@ def run_dfu(address, zipfile, ruuvitag):
                 if not ble_dfu.scan_and_connect():
                     errc += 1
                 else:
-                    print("Connection established")
                     break
 
                 ble_dfu.target_mac_increase(-1)
 
-        if errc == 10:
+        if errc == 5:
             raise Exception("Error limit reached. Can't connect to device")
 
-        print("Start update")
         ble_dfu.start()
 
         return True
@@ -68,5 +63,3 @@ def run_dfu(address, zipfile, ruuvitag):
                 unpacker.delete()
             except Exception:
                 pass
-
-        return False

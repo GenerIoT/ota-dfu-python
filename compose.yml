@@ -1,8 +1,5 @@
 services:
   ota-service:
     build: ./ota-service
-    container_name: ota-service
-    expose:
-      - "8000"
-    ports:
-      - "8000:8000"
+    privileged: true
+    network_mode: host
